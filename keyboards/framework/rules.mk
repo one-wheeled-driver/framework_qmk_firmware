@@ -1,6 +1,6 @@
 # VIA support uses raw HID, don't need to enable it extra.
 # Only when disabling VIA but still wanting to use RAW, need to enable it here.
-VIA_ENABLE = yes
+VIA_ENABLE = no
 RAW_ENABLE = no
 
 # Enabled in info.json

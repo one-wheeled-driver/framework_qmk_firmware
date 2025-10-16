@@ -44,8 +44,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     KC_ESC,  KC_F1,        KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12, KC_DEL,
     KC_GRV,  KC_1,         KC_2,    KC_3,    KC_4,    KC_5,    KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_MINS, KC_EQL,  KC_BSPC,
     KC_TAB,  KC_Q,         KC_W,    KC_E,    KC_R,    KC_T,    KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_LBRC, KC_RBRC,
-    L_NAV,   LCTL_T(KC_A), LGUI_T(KC_S), LT(L_NAV, KC_D), LSFT_T(KC_F), KC_G, KC_H, RSFT_T(KC_J), KC_K, RGUI_T(KC_L), RCTL_T(KC_SCLN), KC_QUOT, KC_NUHS, KC_ENT,
-    KC_LSFT, KC_NUBS,      KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,                   L_SYM,
+    MO(L_NAV),   LCTL_T(KC_A), LGUI_T(KC_S), LT(L_NAV, KC_D), LSFT_T(KC_F), KC_G, KC_H, RSFT_T(KC_J), KC_K, RGUI_T(KC_L), RCTL_T(KC_SCLN), KC_QUOT, KC_NUHS, KC_ENT,
+    KC_LSFT, KC_NUBS,      KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH,                   MO(L_SYM),
     KC_LCTL, MO(_FN),      KC_LGUI, KC_LALT,          KC_SPC,                                   KC_RALT, KC_RCTL, KC_LEFT, KC_UP,   KC_DOWN, KC_RGHT
 ),
 
@@ -196,6 +196,74 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
                 SEND_STRING("./");
             }
         }
+    }
+}
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    // static uint16_t key_timer;
+
+    switch (keycode) {
+
+    /* Prevent press of Ctrl + Home/End, as this would jump to end or beginning
+     * of file, which I do not want to. Instead, process without the Ctrl button
+     */
+    case KC_Q:
+        tap_code(KC_Q);
+        tap_code(KC_S);
+        return false;
+        break;
+
+    case KC_END:
+    case KC_HOME:
+        if (record->event.pressed) {
+            // Check if Ctrl is held down
+            if (get_mods() & MOD_MASK_CTRL)
+            {
+                tap_code(KC_C);
+            }
+            else
+            {
+                tap_code(KC_O);
+            }
+            if (get_mods() & MOD_MASK_CTRL) {
+                uint8_t mods = get_mods();       // Save current modifiers
+                set_mods(mods & ~MOD_MASK_CTRL); // Remove CTL mod
+                tap_code16(keycode);             // Send the key without Ctrl (Shift remains if held)
+                set_mods(mods);                  // Restore modifiers as before
+                return false;                    // Skip default processing for this key
+            }
+        }
+        /* if not pressed during CTRL modifier is active, process normally */
+        return true;
+    break;
+
+    /* When selecting words with holding Ctrl and Shift, often I want to 
+     * select until the upper or lower line. But for this, I would need to 
+     * release Ctl, which often leaves to misspresses (especially with home
+     * row mods). Therefore, do press the button without Ctrl in this case.
+     */
+    case KC_UP:
+    case KC_DOWN:
+        if (record->event.pressed) 
+        {
+            uint8_t mods = get_mods(); // Get current modifiers
+            const bool shift_pressed = mods & MOD_MASK_SHIFT;
+                /* Checks if the right OR left shift is pressed */
+            const bool ctrl_pressed  = mods & MOD_MASK_CTRL;
+                /* Checks if the right OR left ctrl is pressed */
+            if (shift_pressed && ctrl_pressed)  
+            {
+                set_mods(mods & ~MOD_MASK_CTRL); // Remove CTL mod
+                tap_code(keycode); // Press Up/Down without Ctrl
+                set_mods(mods); // Restore previous modifiers
+                return false; // Skip normal processing
+            }
+        }
+        return true; // Process normally if condition is not met
+    break;
+
+    default:
+        return true; // Process all other keycodes normally
     }
 }
 

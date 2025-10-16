@@ -3,6 +3,22 @@
 
 #pragma once
 
+/* Settings for my stuff */
+// Configure the global tapping term (default: 200ms)
+#define TAPPING_TERM 200
+// Enable rapid switch from tap to hold, disables double tap hold auto-repeat.
+#define QUICK_TAP_TERM 0
+
+#define LEADER_PER_KEY_TIMING
+#define LEADER_TIMEOUT 450
+#define LEADER_NO_TIMEOUT
+    /* only no timeout for the first key to press, afterwards the LEADER_TIMEOUT counts */
+
+#define COMBO_MUST_TAP_PER_COMBO
+
+#define COMBO_TERM 50
+    /* Default is 50ms */
+
 // Allow (emulated) EEPROM reset using VIA
 #define VIA_EEPROM_ALLOW_RESET
 

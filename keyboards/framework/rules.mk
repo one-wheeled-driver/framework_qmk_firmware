@@ -24,3 +24,7 @@ SRC += dyn_serial.c factory.c
 DEFAULT_FOLDER = framework/ansi
 
 OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE=TRUE
+
+LEADER_ENABLE = yes
+REPEAT_KEY_ENABLE = yes
+COMBO_ENABLE = yes

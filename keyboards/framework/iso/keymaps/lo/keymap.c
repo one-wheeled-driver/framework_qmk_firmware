@@ -207,24 +207,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     /* Prevent press of Ctrl + Home/End, as this would jump to end or beginning
      * of file, which I do not want to. Instead, process without the Ctrl button
      */
-    case KC_Q:
-        tap_code(KC_Q);
-        tap_code(KC_S);
-        return false;
-        break;
-
     case KC_END:
     case KC_HOME:
         if (record->event.pressed) {
             // Check if Ctrl is held down
-            if (get_mods() & MOD_MASK_CTRL)
-            {
-                tap_code(KC_C);
-            }
-            else
-            {
-                tap_code(KC_O);
-            }
             if (get_mods() & MOD_MASK_CTRL) {
                 uint8_t mods = get_mods();       // Save current modifiers
                 set_mods(mods & ~MOD_MASK_CTRL); // Remove CTL mod
